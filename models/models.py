@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, RegressorMixin
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from prophet import Prophet
+import logging
 
 class HoltWintersWrapper(BaseEstimator, RegressorMixin):
 
@@ -66,7 +67,9 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
             weekly_seasonality=self.weekly_seasonality,
             daily_seasonality=self.daily_seasonality
         )
+        logging.getLogger("cmdstanpy").disabled = True #  turn 'cmdstanpy' logs off
         self.model_.fit(df)
+        logging.getLogger("cmdstanpy").disabled = False #  revert original setting
 
         return self
 
