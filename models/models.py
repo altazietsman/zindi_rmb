@@ -28,7 +28,8 @@ class HoltWintersWrapper(BaseEstimator, RegressorMixin):
         y = y.iloc[:,1:]
 
         self.model_ = ExponentialSmoothing(
-            np.asarray(y),
+            #np.asarray(y),
+            y,
             trend=self.trend,
             seasonal=self.seasonal,
             seasonal_periods=self.seasonal_periods,
@@ -107,11 +108,11 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
 
         return self
 
-    def predict(self, X):
+    def predict(self, forecast):
         if self.model_ is None:
             raise RuntimeError("Model not trained")
 
-        future = self.model_.make_future_dataframe(periods=len(X), freq='MS')
+        future = self.model_.make_future_dataframe(periods=forecast, freq='MS')
 
         if type(self.extra_data) == pd.core.frame.DataFrame:
             df = self.extra_data.rename(columns={'date': 'ds'})
@@ -120,4 +121,4 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
 
         forecast = self.model_.predict(future)
 
-        return forecast['yhat'].tail(len(X)).to_numpy()
+        return forecast['yhat'].tail(forecast).to_numpy()
