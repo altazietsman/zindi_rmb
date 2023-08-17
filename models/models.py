@@ -37,11 +37,11 @@ class HoltWintersWrapper(BaseEstimator, RegressorMixin):
 
         return self
 
-    def predict(self, X):
+    def predict(self, forcast=2):
         if self.model_ is None:
             raise RuntimeError("Model not trained")
 
-        return self.model_.forecast(len(X))
+        return self.model_.forecast(forcast)
     
 class ProphetWrapper(BaseEstimator, RegressorMixin):
 
