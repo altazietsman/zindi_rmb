@@ -44,13 +44,15 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
     def getModelName(self):
         return "Prophet"
     
-    def __init__(self, interval_width=0.80):
+    def __init__(self, n_changepoints, seasonality_mode, interval_width=0.80):
         self.interval_width = interval_width
         self.model_ = None
+        self.n_changeponts=n_changepoints
+        self.seasonality_mode=seasonality_mode
 
     def fit(self, X, y=None):
 
-        self.model_ = Prophet(interval_width=self.interval_width)
+        self.model_ = Prophet(interval_width=self.interval_width, seasonality_mode=self.seasonality_mode, n_changepoints=self.n_changeponts)
 
         regressors = X.columns
         for regressor in regressors:
