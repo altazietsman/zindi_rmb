@@ -38,11 +38,11 @@ class HoltWintersWrapper(BaseEstimator, RegressorMixin):
 
         return self
 
-    def predict(self, forcast=2):
+    def predict(self, forecast=2):
         if self.model_ is None:
             raise RuntimeError("Model not trained")
 
-        return self.model_.forecast(forcast)
+        return self.model_.forecast(forecast)
     
 class ProphetWrapper(BaseEstimator, RegressorMixin):
 
@@ -60,7 +60,8 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
     changepoint_prior_scale=0.05,
     n_changepoints=20,
     changepoint_range=0.8, 
-    name_postfix="", 
+    name_postfix="",
+    seasonality_mode='multiplicative', 
     extra_data=None):
         self.interval_width = interval_width
         self.yearly_seasonality = yearly_seasonality
@@ -121,6 +122,7 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
             df['ds'] = pd.DatetimeIndex(df['ds'])
             future = pd.merge(future, df, on='ds', how='left')
 
-        forecast = self.model_.predict(future)
+        predictions = self.model_.predict(future)
 
-        return forecast['yhat'].tail(forecast).to_numpy()
+
+        return predictions['yhat'].tail(forecast).to_numpy()
