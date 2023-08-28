@@ -49,9 +49,6 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
     def getModelName(self):
         return f"Prophet_{self.changepoint_range}_{self.n_changepoints}_{self.changepoint_prior_scale}{self.name_postfix}"
     
-<<<<<<< HEAD
-    def __init__(self, n_changepoints, seasonality_mode, interval_width=0.80):
-=======
     def getExtraData(self):
         return self.extra_data
     
@@ -65,7 +62,6 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
     changepoint_range=0.8, 
     name_postfix="", 
     extra_data=None):
->>>>>>> f6e7e22e470cbc31dc040d946f196bbda9e85fc4
         self.interval_width = interval_width
         self.yearly_seasonality = yearly_seasonality
         self.weekly_seasonality = weekly_seasonality
@@ -81,9 +77,6 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
 
     def fit(self, X, y):
 
-<<<<<<< HEAD
-        self.model_ = Prophet(interval_width=self.interval_width, seasonality_mode=self.seasonality_mode, n_changepoints=self.n_changeponts)
-=======
         if type(X) == pd.core.frame.DataFrame:
             df = y.copy()
             df.columns = ['date', 'y']
@@ -93,7 +86,6 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
             df = y.copy()
             #df = df.reset_index()
             df.columns = ['ds', 'y']
->>>>>>> f6e7e22e470cbc31dc040d946f196bbda9e85fc4
 
         df['ds'] = pd.DatetimeIndex(df['ds'])
 
