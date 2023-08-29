@@ -4,6 +4,27 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from prophet import Prophet
 import pandas as pd
 import logging
+from datetime import datetime
+import os
+import sys
+
+# Import Statsmodels
+import statsmodels.api as sm
+from statsmodels.tsa.api import VAR
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tools.eval_measures import rmse, aic
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing, Holt, ExponentialSmoothing
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.arima.model import ARIMA
+
+from statsmodels.tsa.seasonal import seasonal_decompose
+from dateutil.parser import parse
+
+from statsmodels.graphics.tsaplots import plot_predict
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+import pmdarima as pm
+from pmdarima.arima.utils import nsdiffs
 
 class HoltWintersWrapper(BaseEstimator, RegressorMixin):
 
@@ -42,12 +63,12 @@ class HoltWintersWrapper(BaseEstimator, RegressorMixin):
         if self.model_ is None:
             raise RuntimeError("Model not trained")
 
-        return self.model_.forecast(forecast)
+        return self.model_.forecast(forecast).to_numpy()
     
 class ProphetWrapper(BaseEstimator, RegressorMixin):
 
     def getModelName(self):
-        return f"Prophet_{self.changepoint_range}_{self.n_changepoints}_{self.changepoint_prior_scale}{self.name_postfix}"
+        return f"Prophet_{self.changepoint_range}_{self.n_changepoints}_{self.changepoint_prior_scale}_{self.name_postfix}"
     
     def getExtraData(self):
         return self.extra_data
@@ -90,6 +111,8 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
 
         df['ds'] = pd.DatetimeIndex(df['ds'])
 
+        df = df.dropna()
+
         self.model_ = Prophet(
             interval_width=self.interval_width,
             yearly_seasonality=self.yearly_seasonality,
@@ -126,3 +149,101 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
 
 
         return predictions['yhat'].tail(forecast).to_numpy()
+
+
+class VarimaWrapper(BaseEstimator, RegressorMixin):
+
+    def getModelName(self):
+        return f"Varima_{self.name_postfix}"
+    
+    def getExtraData(self):
+        return self.extra_data
+    
+    def __init__(self, extra_data=None, name_postfix=""):
+        self.model_ = None,
+        self.extra_data = extra_data
+        self.name_postfix = name_postfix
+
+    def fit(self, X, y):
+
+        y.columns = ['index', 'y']
+        y = y.reset_index()[['index', 'y']]
+
+        data = pd.merge(y, X, right_on='date', left_on='index', how='left')
+
+        data = data.dropna()
+
+        #data['date'].map(lambda x: datetime.strptime(x, '%Y-%m'))
+        #data['date'].max()
+
+        prediction_date = pd.to_datetime(data['date'].max()) + pd.DateOffset(months=1)
+        
+        data = data.drop(['index'], axis=1).set_index('date')
+
+        self.model_ = VAR(endog=data).fit()
+        
+
+    def predict(self, forecast):
+        if self.model_ is None:
+            raise RuntimeError("Model not trained")
+
+        predictions = self.model_.forecast(self.model_.endog, steps=forecast)
+        results = [prediction[0] for prediction in predictions]
+
+        return results
+
+class AutoArimaWrapper(BaseEstimator, RegressorMixin):
+
+    def getModelName(self):
+        return f"AutoArima_{self.name_postfix}"
+    
+    def getExtraData(self):
+        return self.extra_data
+    
+    def __init__(self, extra_data=None, name_postfix=""):
+        self.model_ = None,
+        self.extra_data = extra_data
+        self.name_postfix = name_postfix
+
+    def fit(self, X, y):
+
+        # The Arima model uses only one column for y
+        y = y.iloc[:,1:]
+
+        # Determine the number of seasonal differences using a Canova-Hansen test
+        seasonal_diff = nsdiffs(y,
+                m=12,  # commonly requires knowledge of dataset
+                max_D=12,
+                test='ch')  # -> 0
+
+        # Fit the auto_arima model and find the best model
+        self.model_ = pm.auto_arima(y, 
+                        start_p=1, 
+                        start_q=1,
+                        test='adf',        # use adftest to find optimal 'd'
+                        max_p=3, max_q=3,  # maximum p and q
+                        m=12,              # frequency of series
+                        d=None,            # let model determine 'd'
+                        seasonal=True,     # Seasonality
+                        start_P=1, 
+                        D=seasonal_diff,
+                        start_Q=1,
+                        trace=False,
+                        error_action='ignore',  
+                        suppress_warnings=True, 
+                        stepwise=True,
+                        disp=0)
+        # Fit the model
+        self.model_ = self.model_.fit(y, disp=0)
+
+
+        
+        
+        
+
+    def predict(self, forecast):
+        if self.model_ is None:
+            raise RuntimeError("Model not trained")
+
+        forecast=self.model_.predict(n_periods=forecast, return_conf_int=True)
+        return forecast[0].to_numpy()
