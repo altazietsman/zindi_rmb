@@ -1,0 +1,15 @@
+month: "Jun"
+
+model_selection: 
+  Food and non-alcoholic beverages: 'HoltWinters_mul_mul_18'
+  Alcoholic beverages and tobacco: 'HoltWinters_mul_mul_12'
+  Clothing and footwear: 'HoltWinters_mul_mul_18'
+  Housing and utilities: 'HoltWinters_mul_mul_12'
+  Household contents and services: 'AutoArima_'
+  Health: 'HoltWinters_mul_mul_12'
+  Transport: 'AutoArima_'
+  Communication: 'AutoArima_'
+  Recreation and culture: 'HoltWinters_mul_mul_3'
+  Education: 'HoltWinters_mul_mul_12'
+  Restaurants and hotels: 'HoltWinters_mul_mul_18'
+  Miscellaneous goods and services: 'HoltWinters_mul_mul_18'
