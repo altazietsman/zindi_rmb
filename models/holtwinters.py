@@ -26,7 +26,7 @@ import pmdarima as pm
 from pmdarima.arima.utils import nsdiffs
 
 
-class HoltWintersWrapper(BaseEstimator, RegressorMixin):
+class HoltWinters(BaseEstimator, RegressorMixin):
     """Wrapper class for the holtwinters model
 
     Attributes:
@@ -56,7 +56,7 @@ class HoltWintersWrapper(BaseEstimator, RegressorMixin):
         """Method to retrieve addition data added. This is not used fot holtwinters, but keeps model API standard across models"""
         return None
 
-    def fit(self, X, y):
+    def fit(self, y,  X=None):
         """Fits holtwinters model
 
         X: not used in holtwinters
@@ -77,7 +77,7 @@ class HoltWintersWrapper(BaseEstimator, RegressorMixin):
 
         return self
 
-    def predict(self, forecast=2):
+    def predict(self, forecast=1):
         """Makes prediction with fitted model
 
         Arguments:

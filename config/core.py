@@ -36,4 +36,3 @@ def create_and_validate_config(parsed_config: YAML = None):
 
 
 config = create_and_validate_config()
-month_dict = {month: index for index, month in enumerate(calendar.month_abbr) if month}
