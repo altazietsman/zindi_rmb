@@ -56,7 +56,7 @@ class HoltWinters(BaseEstimator, RegressorMixin):
         """Method to retrieve addition data added. This is not used fot holtwinters, but keeps model API standard across models"""
         return None
 
-    def fit(self, y,  X=None):
+    def fit(self, y, X=None):
         """Fits holtwinters model
 
         X: not used in holtwinters

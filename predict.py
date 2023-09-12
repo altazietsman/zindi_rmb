@@ -1,7 +1,13 @@
 from config.core import config
 from pathlib import Path
 import pandas as pd
-from utils.data import get_montly_cpi, load_and_transform_cpi_weights, load_models, cat_to_id, month_dict
+from utils.data import (
+    get_montly_cpi,
+    load_and_transform_cpi_weights,
+    load_models,
+    cat_to_id,
+    month_dict,
+)
 from utils.stats import weight_based_headline_cpi
 
 
@@ -31,19 +37,22 @@ def predict(month=config["month"]):
 
     predictions = {}
 
-    for cat, selected_model in config['model_selection'].items():
+    for cat, selected_model in config["model_selection"].items():
         cat_id = cat_to_id[str(cat).strip()]
-        train_df = monthly_cpi[monthly_cpi['date'] < '2023-{month_number}'].sort_values(by=['date'])
+        train_df = monthly_cpi[monthly_cpi["date"] < "2023-{month_number}"].sort_values(
+            by=["date"]
+        )
 
         model = load_models(model_name=str(selected_model))
-        model.fit(train_df[['date',cat_id]])
+        model.fit(train_df[["date", cat_id]])
         pred = model.predict(forecast=1)
         predictions[str(cat).strip()] = pred[0]
 
-    if predictions.get('headline CPI') == None:
-        predictions['headline CPI'] = weight_based_headline_cpi(cpi_weights=cpi_weights, cpi_cat_pred=predictions)
+    if predictions.get("headline CPI") == None:
+        predictions["headline CPI"] = weight_based_headline_cpi(
+            cpi_weights=cpi_weights, cpi_cat_pred=predictions
+        )
+
+    ## TODO: save predictons
 
     return predictions
-
-
-
