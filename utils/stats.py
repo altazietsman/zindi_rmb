@@ -16,14 +16,13 @@ def weight_based_headline_cpi(cpi_weights, cpi_cat_pred):
     headline_cpi: float
     """
 
-    cpi_weights = cpi_weights.set_axis(
-        [entry.strip() for entry in cpi_weights.index], axis="index"
-    )
+    cpi_weights = cpi_weights.set_index(['Category'])
 
     head_line = 0
     for entry in cpi_weights.index:
-        head_line = head_line + (
-            cpi_weights.loc[entry] * cpi_cat_pred.iloc[70][entry]
-        )  ##TODO: this is not right. It will depend on the prediction table
+        if cpi_weights.loc[entry]['Weight'] > 0:
+            head_line = head_line + (
+                cpi_weights.loc[entry] * cpi_cat_pred[entry.strip()]
+            )  ##TODO: this is not right. It will depend on the prediction table
 
     return head_line / 100
