@@ -56,3 +56,7 @@ def predict(month=config["month"]):
     ## TODO: save predictons
 
     return predictions
+
+
+if __name__ == "__main__":
+    predict(month=config["month"])
