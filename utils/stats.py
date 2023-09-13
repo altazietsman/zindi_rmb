@@ -22,7 +22,7 @@ def weight_based_headline_cpi(cpi_weights, cpi_cat_pred):
     for entry in cpi_weights.index:
         if cpi_weights.loc[entry]["Weight"] > 0:
             head_line = head_line + (
-                cpi_weights.loc[entry] * cpi_cat_pred[entry.strip()]
+                cpi_weights.loc[entry]["Weight"] * cpi_cat_pred[entry.strip()]
             )  ##TODO: this is not right. It will depend on the prediction table
 
     return head_line / 100

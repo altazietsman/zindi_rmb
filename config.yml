@@ -1,4 +1,4 @@
-month: "June"
+month: "August"
 
 model_selection: 
   Food and non-alcoholic beverages: 'HoltWinters_mul_mul_18'

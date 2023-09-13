@@ -27,8 +27,7 @@ def predict(month=config["month"]):
     """
     month_number = str(month_dict[month])
     raw_cpi = pd.read_excel(
-        path
-        + f"/data/EXCEL - CPI(5 and 8 digit) from Jan 2017 (20230{month_number.strip('0')}).xlsx",
+        path + f"/data/statssa_cpi.xlsx",
         dtype="object",
     )
     cpi_weights = load_and_transform_cpi_weights()
@@ -37,9 +36,10 @@ def predict(month=config["month"]):
 
     predictions = {}
 
+
     for cat, selected_model in config["model_selection"].items():
         cat_id = cat_to_id[str(cat).strip()]
-        train_df = monthly_cpi[monthly_cpi["date"] < "2023-{month_number}"].sort_values(
+        train_df = monthly_cpi[monthly_cpi["date"] < f"2023-{month_number}"].sort_values(
             by=["date"]
         )
 
@@ -53,7 +53,29 @@ def predict(month=config["month"]):
             cpi_weights=cpi_weights, cpi_cat_pred=predictions
         )
 
-    ## TODO: save predictons
+    pred_map = {
+        "headline CPI": f"{month}_headline CPI",
+        "Alcoholic beverages and tobacco": f"{month}_alcoholic beverages and tobacco",
+        "Clothing and footwear": f"{month}_clothing and footwear",
+        "Communication": f"{month}_communication",
+        "Education": f"{month}_education",
+        "Food and non-alcoholic beverages": f"{month}_food and non-alcoholic beverages",
+        "Health": f"{month}_health",
+        "Household contents and services": f"{month}_household contents and services",
+        "Housing and utilities": f"{month}_housing and utilities",
+        "Miscellaneous goods and services": f"{month}_miscellaneous goods and services",
+        "Recreation and culture": f"{month}_recreation and culture",
+        "Restaurants and hotels": f"{month}_restaurants and hotels",
+        "Transport": f"{month}_transport",
+    }
+
+    df_pred = pd.DataFrame.from_dict(predictions, orient="index").reset_index()
+
+    df_pred.columns = ["ID", "Value"]
+
+    df_pred = df_pred.replace(pred_map)
+
+    df_pred.to_csv(path + f"/submissions/cpi_{month}.csv", index=False)
 
     return predictions
 
