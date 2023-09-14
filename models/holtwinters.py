@@ -42,6 +42,7 @@ class HoltWinters(BaseEstimator, RegressorMixin):
         self.seasonal = seasonal
         self.seasonal_periods = seasonal_periods
         self.model_ = None
+        self.extra_data = None
 
         # Set the random seed
         np.random.seed(111)
@@ -54,7 +55,7 @@ class HoltWinters(BaseEstimator, RegressorMixin):
 
     def getExtraData(self):
         """Method to retrieve addition data added. This is not used fot holtwinters, but keeps model API standard across models"""
-        return None
+        return self.extra_data
 
     def fit(self, y, X=None):
         """Fits holtwinters model
