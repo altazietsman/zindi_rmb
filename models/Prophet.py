@@ -27,7 +27,7 @@ import pmdarima as pm
 from pmdarima.arima.utils import nsdiffs
 
 
-class ProphetWrapper(BaseEstimator, RegressorMixin):
+class Prophet(BaseEstimator, RegressorMixin):
     """Wrapper class for the prophet model
 
     Attributes:
@@ -81,7 +81,7 @@ class ProphetWrapper(BaseEstimator, RegressorMixin):
         """Method to retrieve addition data added"""
         return self.extra_data
 
-    def fit(self, X, y):
+    def fit(self, y, X=None):
         """Fits prophet model. If X data is provided, this data is used for training, otherwise the y data is used as data.
 
         Arguments:

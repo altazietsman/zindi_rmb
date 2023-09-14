@@ -1,8 +1,10 @@
 from config.core import config
 import pandas as pd
+from pathlib import Path
+from pydoc import locate
 
 
-category_dict = {
+id_to_cat = {
     "01": "Food and non-alcoholic beverages",
     "02": "Alcoholic beverages and tobacco",
     "03": "Clothing and footwear",
@@ -18,6 +20,23 @@ category_dict = {
     "headline": "headline CPI",
 }
 
+cat_to_id = dict((v, k) for k, v in id_to_cat.items())
+
+month_dict = {
+    "January": "01",
+    "February": "02",
+    "March": "03",
+    "April": "04",
+    "May": "05",
+    "June": "06",
+    "July": "07",
+    "August": "08",
+    "September": "09",
+    "October": "10",
+    "November": "11",
+    "December": "12",
+}
+
 
 def retrieve_cpi_data(month=config["month"]):
     """Function to retrive cpi data and save to data folder (we will submit the raw data every month as well
@@ -26,30 +45,23 @@ def retrieve_cpi_data(month=config["month"]):
     pass
 
 
-def transfrom_cpi(raw_cpi, cpi_cat_dict: dict = category_dict):
-    """Function to get monthly cpi data from the raw data. Data willm be saved to data folder
-
-    The following steps are taking to convert the raw cpi data from stats sa to monthly cpi:
-    - Remove unnecessary columns.
-    - Change column headers to make them more explanatory.
-    - Replace all `..` entries with a `0`.
-    - Combine the `Super maize` and `Special maize` categories into a single `Maize meal` category, to correspond with the current use of maize meal.
-    - Calculate the CPI values for each month using the weights provided in the file.
+def get_montly_cpi(raw_cpi):
+    """Function that takes the raw cpi data for each product from statssa and calculates the cpi value per category
 
     Arguments:
     ----------
     raw_cpi: pandas dataframe
-             raw cpi data pulled from stats sa
-    cpi_cat_dict: dict
-                  maps category names to numbers
-    Returns:
-    --------
-    cpi_df: pandas df
-            monthly cpi values
+            dataframe containing raw data from statsa
+
+    Return:
+    -------
+    transposed_cpi_df: pandas dataframe
+            dataframe containing the monthly cpi per category
     """
 
+    # 1. remove unecessary columns and rename
     list_cols_to_drop = ["H01", "H02", "H05", "H06", "H07"]
-    cat_cpi_df = raw_cpi.drop(list_cols_to_drop, axis=1).copy()
+    cat_cpi_df = raw_cpi.copy().drop(list_cols_to_drop, axis=1).copy()
 
     cat_cpi_df.rename(
         columns={
@@ -60,32 +72,24 @@ def transfrom_cpi(raw_cpi, cpi_cat_dict: dict = category_dict):
         inplace=True,
     )
 
+    # 2. replace .. with zeros
     cat_cpi_df.replace("..", 0, inplace=True)
 
-    # Convert the Super maize and Special maize row to numeric data types.
-    # The rows will be dropped, so the loss of other information is not a problem.
-
-    cat_cpi_df.iloc[17:19] = cat_cpi_df.iloc[17:19].apply(
-        pd.to_numeric, errors="coerce"
+    # 3. combine maize meal categories
+    cat_cpi_df.iloc[17:19] = (
+        cat_cpi_df.iloc[17:19].copy().apply(pd.to_numeric, errors="coerce")
     )
-
-    # Divide rows A and B
-    divided_row = (cat_cpi_df.iloc[17] + cat_cpi_df.iloc[18]) / 2
-
-    # Replace the value in row C if it is 0 with the divided value
+    divided_row = (cat_cpi_df.iloc[17].copy() + cat_cpi_df.iloc[18].copy()) / 2
     cat_cpi_df.iloc[15] = [
         divided_row[i] if value == 0 else value
-        for i, value in enumerate(cat_cpi_df.iloc[15])
+        for i, value in enumerate(cat_cpi_df.iloc[15].copy())
     ]
-
-    # Remove the rows for Super maize and Special maize
     cat_cpi_df.drop([cat_cpi_df.index[17], cat_cpi_df.index[18]], inplace=True)
 
+    # Convert the 'weights_urban' column to float
     cat_cpi_df["weights_urban"] = cat_cpi_df["weights_urban"].astype("float")
 
-    # Make a copy of the input dataframe
-    df = cat_cpi_df.copy()
-
+    # 4. calculate cpi
     # Assign a main category code to each raw data row.
     main_category = []
     for index, row in cat_cpi_df.iterrows():
@@ -100,23 +104,29 @@ def transfrom_cpi(raw_cpi, cpi_cat_dict: dict = category_dict):
         else:
             main_category.append("no")
 
-    df["main_category_code"] = main_category
+    cat_cpi_df["main_category_code"] = main_category
 
     # Drop the rows where the main_category_code is "no". That is to prevent double counting.
     # Some categories have a sub category included in the data.
-    df.drop(df[df["main_category_code"] == "no"].index, inplace=True)
+    cat_cpi_df.drop(
+        cat_cpi_df[cat_cpi_df["main_category_code"] == "no"].index, inplace=True
+    )
 
     # Sum the weights for each category
-    sum_weights = df.groupby("main_category_code")["weights_urban"].sum()
+    sum_weights = cat_cpi_df.groupby("main_category_code")["weights_urban"].sum()
 
+    # create new cpi dataframe
     cpi_df = pd.DataFrame()
 
     # For each month create the headline CPI value and the CPI value per category.
-    for col in range(3, df.shape[1] - 1):
-        column_name = df.columns[col]
-        df["weighted_index_" + column_name] = df["weights_urban"] * df[column_name]
+    for col in range(3, cat_cpi_df.shape[1] - 1):
+        cat_cpi_df = cat_cpi_df.copy()
+        column_name = cat_cpi_df.columns[col]
+        cat_cpi_df["weighted_index_" + column_name] = (
+            cat_cpi_df["weights_urban"] * cat_cpi_df[column_name]
+        )
 
-        sum_weighted_index = df.groupby("main_category_code")[
+        sum_weighted_index = cat_cpi_df.groupby("main_category_code")[
             "weighted_index_" + column_name
         ].sum()
 
@@ -148,10 +158,64 @@ def transfrom_cpi(raw_cpi, cpi_cat_dict: dict = category_dict):
 
     # Dataframe with just the CPI values:
     cpi_df = cpi_df.drop("weights_urban", axis=1).copy()
+    transposed_cpi_df = cpi_df.set_index("category").transpose().reset_index()
+    transposed_cpi_df["date"] = transposed_cpi_df["index"].apply(
+        lambda x: x.split("M")[-1]
+    )
+    transposed_cpi_df["date"] = transposed_cpi_df["date"].apply(
+        lambda x: x[:4] + "-" + x[-2:]
+    )
+    # change month to datetime format
+    transposed_cpi_df["date"] = pd.to_datetime(transposed_cpi_df["date"]).dt.strftime(
+        "%Y-%m"
+    )
 
-    return cpi_df
+    return transposed_cpi_df
 
 
-def load_cpi_weights():
-    """Function to load cpi weights (provided by zindi)."""
-    pass
+def load_and_transform_cpi_weights():
+    """Function to load cpi weights (provided by zindi).
+
+    Returns:
+    --------
+    cpi_weights: pandas dataframe
+    """
+
+    path = str(Path().cwd().resolve())
+
+    cpi_weights = pd.read_excel(
+        path + f"/data/cpi_weights.xlsx",
+        dtype="object",
+    )
+
+    return cpi_weights.replace({"Headline_CPI": "headline CPI"})
+
+
+def load_models(model_name: str):
+    model_params = model_name.split("_")
+
+    model = model_params[0]
+
+    model_import = locate(f"models.{model}.{model}")
+
+    if model == "HoltWinters":
+        return model_import(
+            trend=model_params[1],
+            seasonal=model_params[2],
+            seasonal_periods=int(model_params[3]),
+        )
+
+    elif model == "AutoArima":
+        return model_import()
+
+    elif model == "Prophet":
+        return model_import(
+            changepoint_range=int(model_params[1]),
+            n_changepoints=int(model_params[2]),
+            changepoint_prior_scale=float(model_params[3]),
+        )
+
+    elif model == "Varima":
+        return model_import()
+
+    # TODO: calculate cpi for headline based on weights

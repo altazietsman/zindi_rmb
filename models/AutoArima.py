@@ -27,7 +27,7 @@ import pmdarima as pm
 from pmdarima.arima.utils import nsdiffs
 
 
-class AutoArimaWrapper(BaseEstimator, RegressorMixin):
+class AutoArima(BaseEstimator, RegressorMixin):
     """Wrapper class for the Auto Arima model
 
     Attributes:
@@ -42,6 +42,7 @@ class AutoArimaWrapper(BaseEstimator, RegressorMixin):
     def __init__(self, extra_data=None, name_postfix=""):
         self.model_ = (None,)
         self.name_postfix = name_postfix
+        self.extra_data = extra_data
 
     def getModelName(self):
         """Method to retrieve name of model"""
@@ -49,9 +50,9 @@ class AutoArimaWrapper(BaseEstimator, RegressorMixin):
 
     def getExtraData(self):
         """Method to retrieve addition data added. This is not used fot holtwinters, but keeps model API standard across models"""
-        return None
+        return self.extra_data
 
-    def fit(self, X, y):
+    def fit(self, y, X=None):
         """Fits auto arima model
 
         X: not used in holtwinters
@@ -92,7 +93,7 @@ class AutoArimaWrapper(BaseEstimator, RegressorMixin):
 
         return self
 
-    def predict(self, forecast):
+    def predict(self, forecast=1):
         """Makes prediction with fitted model
 
         Arguments:
