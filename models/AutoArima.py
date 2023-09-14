@@ -87,6 +87,7 @@ class AutoArima(BaseEstimator, RegressorMixin):
             suppress_warnings=True,
             stepwise=True,
             disp=0,
+            random_state=123
         )
         # Fit the model
         self.model_ = self.model_.fit(y, disp=0)

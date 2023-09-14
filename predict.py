@@ -14,7 +14,7 @@ from utils.stats import weight_based_headline_cpi
 path = str(Path().cwd().resolve())
 
 
-def predict(month=config["month"]):
+def predict(month=config["month"], train_range=24):
     """Makes prediction and saves submission
 
     steps:
@@ -33,7 +33,7 @@ def predict(month=config["month"]):
     cpi_weights = load_and_transform_cpi_weights()
 
     monthly_cpi = get_montly_cpi(raw_cpi=raw_cpi)
-
+    monthly_cpi = monthly_cpi.drop(index=monthly_cpi.index[:train_range]).reset_index(drop=True)
     predictions = {}
 
 
@@ -42,7 +42,6 @@ def predict(month=config["month"]):
         train_df = monthly_cpi[monthly_cpi["date"] < f"2023-{month_number}"].sort_values(
             by=["date"]
         )
-
         model = load_models(model_name=str(selected_model))
         model.fit(train_df[["date", cat_id]])
         pred = model.predict(forecast=1)
