@@ -3,7 +3,7 @@ Python version 3.9.16 was used. All requirements can be found in the requirement
 
 It is important set your PYTHONPATH to this dir for example:
 
-PYTHONPATH = '<path to rmb dir>'
+export PYTHONPATH=${PYTHONPATH}:<path to directory>
 
 # Data
 All data used can be found in the Data dir. Only historic CPI was used
@@ -23,4 +23,27 @@ Please note that only the config will be updated throughout the competition as w
 
 The latest cpi file from statsa will also be updated every month to contain the latest data.
 
-## TODO: add repo structure
+# Models
+All model classes tested can be found in the models directory. Note that not all models were used for the final submission, however they are still supplied for transparency. Models tested includes Holtwinters and Arima as well as Prophet and Varima models that included fuel data, currecy data, south african credit information and sabor metric.
+
+# Repo structure
+- zindi rmd
+    |- config
+        - core.py
+    |- data
+        - statssa_cpi.xlsx
+    |- models
+        - AutoArima.py
+        - HoltWinters.py
+        - Prophet.py
+        - Varima.py
+    |- submissions
+    |- utils
+        - data.py
+        - stats.py
+    - config.yml
+    - predict.py
+    - example_notebook.ipynb
+    - README.md
+    - requirements.text
+    
