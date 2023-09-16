@@ -28,17 +28,17 @@ All model classes tested can be found in the models directory. Note that not all
 
 # Repo structure
 - zindi rmd
-    |- config
+    - config
         - core.py
-    |- data
+    - data
         - statssa_cpi.xlsx
-    |- models
+    - models
         - AutoArima.py
         - HoltWinters.py
         - Prophet.py
         - Varima.py
-    |- submissions
-    |- utils
+    - submissions
+    - utils
         - data.py
         - stats.py
     - config.yml
