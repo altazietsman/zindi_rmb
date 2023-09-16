@@ -2,6 +2,7 @@ from config.core import config
 from pathlib import Path
 import pandas as pd
 from utils.data import (
+    create_empty_submission_file,
     get_montly_cpi,
     load_and_transform_cpi_weights,
     load_models,
@@ -35,7 +36,6 @@ def predict(month=config["month"], train_range=24):
     monthly_cpi = get_montly_cpi(raw_cpi=raw_cpi)
     monthly_cpi = monthly_cpi.drop(index=monthly_cpi.index[:train_range]).reset_index(drop=True)
     predictions = {}
-
 
     for cat, selected_model in config["model_selection"].items():
         cat_id = cat_to_id[str(cat).strip()]
@@ -75,6 +75,18 @@ def predict(month=config["month"], train_range=24):
     df_pred = df_pred.replace(pred_map)
 
     df_pred.to_csv(path + f"/submissions/cpi_{month}.csv", index=False)
+
+    # check if a CPI prediction file already exists, if not create a file with 0 CPI values
+    create_empty_submission_file(path=path, final_submission_months=["September", "October", "November"])
+
+    # merge the three csv files to create the final submission file
+    df_combined = pd.concat(
+        map(pd.read_csv, [path + f"/submissions/cpi_September.csv",
+                          path + f"/submissions/cpi_October.csv",
+                          path + f"/submissions/cpi_November.csv"]),
+        ignore_index=True)
+
+    df_combined.to_csv(path + f"/submissions/final_submission_file.csv", index=False)
 
     return predictions
 
