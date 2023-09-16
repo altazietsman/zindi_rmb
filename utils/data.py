@@ -218,8 +218,6 @@ def load_models(model_name: str):
     elif model == "Varima":
         return model_import()
 
-    # TODO: calculate cpi for headline based on weights
-
 
 def create_empty_submission_file(path, final_submission_months):
     """Function that creates and saves an empty submission file if the CPI values for that month have

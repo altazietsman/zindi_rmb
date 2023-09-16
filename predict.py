@@ -25,6 +25,17 @@ def predict(month=config["month"], train_range=24):
     4. makes prediction per category
     5. saves submission
 
+    Arguments:
+    ----------
+    month: str
+            Month to predict on
+    train_range: int
+                 historic range in months to train on
+    
+    Return:
+    -------
+    predictions: dict
+                 predictions per category
     """
     month_number = str(month_dict[month])
     raw_cpi = pd.read_excel(
