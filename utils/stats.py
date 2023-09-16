@@ -23,6 +23,6 @@ def weight_based_headline_cpi(cpi_weights, cpi_cat_pred):
         if cpi_weights.loc[entry]["Weight"] > 0:
             head_line = head_line + (
                 cpi_weights.loc[entry]["Weight"] * cpi_cat_pred[entry.strip()]
-            )  
+            )
 
     return head_line / 100

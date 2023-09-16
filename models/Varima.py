@@ -70,11 +70,15 @@ class Varima(BaseEstimator, RegressorMixin):
         if type(X) == pd.core.frame.DataFrame:
             data = pd.merge(y, X, right_on="date", left_on="index", how="left")
             data = data.dropna()
-            prediction_date = pd.to_datetime(data["date"].max()) + pd.DateOffset(months=1)
+            prediction_date = pd.to_datetime(data["date"].max()) + pd.DateOffset(
+                months=1
+            )
             data = data.drop(["index"], axis=1).set_index("date")
         else:
             data = y
-            prediction_date = pd.to_datetime(data["index"].max()) + pd.DateOffset(months=1)
+            prediction_date = pd.to_datetime(data["index"].max()) + pd.DateOffset(
+                months=1
+            )
             data = data.set_index("index")
 
         self.model_ = VAR(endog=data).fit()

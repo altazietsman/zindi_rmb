@@ -88,7 +88,7 @@ class AutoArima(BaseEstimator, RegressorMixin):
             stepwise=True,
             disp=0,
             random_state=345,
-            information_criterion='aic'
+            information_criterion="aic",
         )
         # Fit the model
         self.model_ = self.model_.fit(y, disp=0)

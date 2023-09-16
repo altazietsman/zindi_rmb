@@ -235,20 +235,22 @@ def create_empty_submission_file(path, final_submission_months):
             print(f"{final_month} CPI prediction file doesn't exist")
 
             # create a dataframe with zero values
-            empty_data = [[f"{final_month}_headline CPI", 0],
-                          [f"{final_month}_alcoholic beverages and tobacco", 0],
-                          [f"{final_month}_clothing and footwear", 0],
-                          [f"{final_month}_communication", 0],
-                          [f"{final_month}_education", 0],
-                          [f"{final_month}_food and non-alcoholic beverages", 0],
-                          [f"{final_month}_health", 0],
-                          [f"{final_month}_household contents and services", 0],
-                          [f"{final_month}_housing and utilities", 0],
-                          [f"{final_month}_miscellaneous goods and services", 0],
-                          [f"{final_month}_recreation and culture", 0],
-                          [f"{final_month}_restaurants and hotels", 0],
-                          [f"{final_month}_transport", 0]]
+            empty_data = [
+                [f"{final_month}_headline CPI", 0],
+                [f"{final_month}_alcoholic beverages and tobacco", 0],
+                [f"{final_month}_clothing and footwear", 0],
+                [f"{final_month}_communication", 0],
+                [f"{final_month}_education", 0],
+                [f"{final_month}_food and non-alcoholic beverages", 0],
+                [f"{final_month}_health", 0],
+                [f"{final_month}_household contents and services", 0],
+                [f"{final_month}_housing and utilities", 0],
+                [f"{final_month}_miscellaneous goods and services", 0],
+                [f"{final_month}_recreation and culture", 0],
+                [f"{final_month}_restaurants and hotels", 0],
+                [f"{final_month}_transport", 0],
+            ]
 
-            df_empty = pd.DataFrame(empty_data, columns=['ID', 'Value'])
+            df_empty = pd.DataFrame(empty_data, columns=["ID", "Value"])
 
             df_empty.to_csv(path + f"/submissions/cpi_{final_month}.csv", index=False)
