@@ -3,3 +3,7 @@ __pycache__/
 *.py[cod]
 .env
 .ipynb_checkpoints
+data
+.DS_store
+.idea/
+submissions
