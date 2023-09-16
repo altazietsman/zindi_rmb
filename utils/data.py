@@ -210,7 +210,7 @@ def load_models(model_name: str):
 
     elif model == "Prophet":
         return model_import(
-            changepoint_range=int(model_params[1]),
+            changepoint_range=float(model_params[1]),
             n_changepoints=int(model_params[2]),
             changepoint_prior_scale=float(model_params[3]),
         )

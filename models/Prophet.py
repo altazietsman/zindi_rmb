@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.base import BaseEstimator, RegressorMixin
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from prophet import Prophet
+from prophet import Prophet as FbProphet
 import pandas as pd
 import logging
 from datetime import datetime
@@ -107,7 +107,7 @@ class Prophet(BaseEstimator, RegressorMixin):
 
         df = df.dropna()
 
-        self.model_ = Prophet(
+        self.model_ = FbProphet(
             interval_width=self.interval_width,
             yearly_seasonality=self.yearly_seasonality,
             weekly_seasonality=self.weekly_seasonality,
@@ -122,10 +122,10 @@ class Prophet(BaseEstimator, RegressorMixin):
                 self.model_.add_regressor(col)
 
         logging.getLogger("cmdstanpy").disabled = True  #  turn 'cmdstanpy' logs off
-        self.model_.fit(df)
+        self.model_ = self.model_.fit(df)
         logging.getLogger("cmdstanpy").disabled = False  #  revert original setting
 
-        return self
+        return self.model_
 
     def predict(self, forecast=1):
         """Makes prediction with fitted model

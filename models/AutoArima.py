@@ -74,8 +74,8 @@ class AutoArima(BaseEstimator, RegressorMixin):
             start_p=1,
             start_q=1,
             test="adf",  # use adftest to find optimal 'd'
-            max_p=3,
-            max_q=3,  # maximum p and q
+            max_p=6,
+            max_q=6,  # maximum p and q
             m=12,  # frequency of series
             d=None,  # let model determine 'd'
             seasonal=True,  # Seasonality
@@ -87,7 +87,8 @@ class AutoArima(BaseEstimator, RegressorMixin):
             suppress_warnings=True,
             stepwise=True,
             disp=0,
-            random_state=123
+            random_state=345,
+            information_criterion='aic'
         )
         # Fit the model
         self.model_ = self.model_.fit(y, disp=0)

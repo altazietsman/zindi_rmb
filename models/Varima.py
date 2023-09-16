@@ -27,7 +27,7 @@ import pmdarima as pm
 from pmdarima.arima.utils import nsdiffs
 
 
-class VarimaWrapper(BaseEstimator, RegressorMixin):
+class Varima(BaseEstimator, RegressorMixin):
     """Wrapper class for the prophet model
 
     Attributes:
@@ -52,7 +52,7 @@ class VarimaWrapper(BaseEstimator, RegressorMixin):
         """Method to retrieve addition data added"""
         return self.extra_data
 
-    def fit(self, X, y):
+    def fit(self, y, X=None):
         """Fits prophet model. If X data is provided, this data is used for training, otherwise the y data is used as data.
 
         Arguments:
@@ -61,23 +61,25 @@ class VarimaWrapper(BaseEstimator, RegressorMixin):
            Additional data used for training.
            trend data to be included as well.
         y: pandas dataframe
-           Data for trand to predict. Needs to include predicted variable and data
+           Data for trand to predict. Needs to include predicted variable and date
         """
 
         y.columns = ["index", "y"]
         y = y.reset_index()[["index", "y"]]
 
-        data = pd.merge(y, X, right_on="date", left_on="index", how="left")
-
-        data = data.dropna()
-
-        prediction_date = pd.to_datetime(data["date"].max()) + pd.DateOffset(months=1)
-
-        data = data.drop(["index"], axis=1).set_index("date")
+        if type(X) == pd.core.frame.DataFrame:
+            data = pd.merge(y, X, right_on="date", left_on="index", how="left")
+            data = data.dropna()
+            prediction_date = pd.to_datetime(data["date"].max()) + pd.DateOffset(months=1)
+            data = data.drop(["index"], axis=1).set_index("date")
+        else:
+            data = y
+            prediction_date = pd.to_datetime(data["index"].max()) + pd.DateOffset(months=1)
+            data = data.set_index("index")
 
         self.model_ = VAR(endog=data).fit()
 
-        return self
+        return self.model_
 
     def predict(self, forecast):
         """Makes prediction with fitted model
