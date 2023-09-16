@@ -11,7 +11,7 @@ All data used can be found in the Data dir. Only historic CPI was used
 # Code
 To create predictions for a new month, update the month variable in the config. Note that entire month needs to be written and not just abbreviations for example March not Mar and November not Nov.
 
-If the config is update you can either run the predict script in your terminal (python predict.py) or you can call the predict function in a notebook (see example notebook attached #TODO add this). Before running the predict function ensure that all libraries are installed or conda env is activate (if applicable)
+If the config is updated you can either run the predict script in your terminal (python predict.py) or you can call the predict function in a notebook (see example notebook attached). Before running the predict function ensure that all libraries are installed or conda env is activate (if applicable).
 
 The predict function will load the historic cpi data, make predictions and save the submission file to the submissions folder.
 
@@ -24,7 +24,7 @@ Please note that only the config will be updated throughout the competition as w
 The latest cpi file from statsa will also be updated every month to contain the latest data.
 
 # Models
-All model classes tested can be found in the models directory. Note that not all models were used for the final submission, however they are still supplied for transparency. Models tested includes Holtwinters and Arima as well as Prophet and Varima models that included fuel data, currecy data, south african credit information and sabor metric.
+All model classes tested can be found in the models directory. Note that not all models were used for the final submission, however they are still supplied for transparency. Models tested includes Holtwinters and Arima as well as Prophet and Varima models with fuel data, currecy data, south african credit information and sabor metric.
 
 # Repo structure
 - zindi rmd
