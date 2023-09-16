@@ -3,7 +3,7 @@ Python version 3.9.16 was used. All requirements can be found in the requirement
 
 It is important set your PYTHONPATH to this dir for example:
 
-export PYTHONPATH=${PYTHONPATH}:<path to directory>
+export PYTHONPATH=${PYTHONPATH}:<<path to directory>>
 
 # Data
 All data used can be found in the Data dir. Only historic CPI was used
