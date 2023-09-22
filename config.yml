@@ -1,4 +1,4 @@
-month: "August"
+month: "September"
 
 model_selection: 
   Food and non-alcoholic beverages: 'AutoArima_'

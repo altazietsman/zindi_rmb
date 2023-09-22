@@ -1,6 +1,11 @@
 # ENV
 Python version 3.9.16 was used. All requirements can be found in the requirements.txt file. Ensure that all libraries are installed (locally or within a conda env.)
 
+To install from requirements file run:
+pip install -r requirements.txt
+
+If you are struggling to see your conda env in your notebook, try also installing nb_conda_kernels (conda install nb_conda_kernels) as well.
+
 It is important set your PYTHONPATH to this dir for example:
 
 export PYTHONPATH=${PYTHONPATH}:<'path_to_directory'>
