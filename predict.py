@@ -46,6 +46,9 @@ def predict(month=config["month"], train_range=24):
 
     monthly_cpi = get_montly_cpi(raw_cpi=raw_cpi)
     monthly_cpi = monthly_cpi.drop(index=monthly_cpi.index[:train_range]).reset_index(drop=True)
+    
+    print("CPI data retrieved until month:", monthly_cpi['date'].max())
+
     predictions = {}
 
     for cat, selected_model in config["model_selection"].items():
